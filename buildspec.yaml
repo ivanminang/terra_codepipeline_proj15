@@ -1,0 +1,28 @@
+version: 0.2  # version
+phases:
+  install:
+    runtime-versions:
+      python: 3.8 # it will install python 3.8 on the web server
+  pre_build:
+    commands:
+      - echo WE ARE ENTERING THE PREBUILD PHASE...
+      - echo checking the python version installed
+      - python3 --version
+      - echo installing CFN-LINT
+      - pip3 install cfn-lint
+      - checking the CFN-LINT version
+      - cfn-lint --version
+  build:
+    commands:
+      - echo ****** TESTING OUR TEMPLATE*****
+      - cfn-lint applicationcode.yaml
+      - echo **** Build started on `date` ****
+      - aws cloudformation package --template-file applicationcode.tf --s3-bucket codepipeline_bucket --output-template-file outputTemplate.yaml  
+      - echo We are moving to the Build Phase
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - ls -l
+artifacts:
+  files:
+    - '**/*' # zip back everything up
